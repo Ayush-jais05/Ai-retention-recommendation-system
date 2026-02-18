@@ -14,9 +14,6 @@ movies = joblib.load("models/movies.pkl")         # movie metadata
 # CLEAN TITLE 🔥
 # =========================
 def clean_title(title):
-    """
-    Remove year (1999), lowercase, strip spaces
-    """
     return re.sub(r"\(\d{4}\)", "", title).strip().lower()
 
 
@@ -26,14 +23,14 @@ def clean_title(title):
 if "clean_title" not in movies.columns:
     movies["clean_title"] = movies["title"].apply(clean_title)
 
+# 🔥 FAST lookup dictionary (BIG performance boost 🚀)
+movieid_to_index = {mid: i for i, mid in enumerate(movie_ids)}
+
 
 # =========================
-# GET MOVIE INDEX (NOT ID ⚠️)
+# GET MOVIE INDEX
 # =========================
 def get_movie_index(movie_name):
-    """
-    Return index position (used by KNN model)
-    """
 
     movie_name_clean = clean_title(movie_name)
 
@@ -41,17 +38,16 @@ def get_movie_index(movie_name):
     exact_match = movies[movies["clean_title"] == movie_name_clean]
     if not exact_match.empty:
         movie_id = exact_match.iloc[0]["movieId"]
+        return movieid_to_index.get(movie_id)
 
-        if movie_id in movie_ids:
-            return movie_ids.index(movie_id)
+    # partial match (safe regex OFF ⚠️)
+    partial_match = movies[
+        movies["clean_title"].str.contains(movie_name_clean, regex=False)
+    ]
 
-    # partial match
-    partial_match = movies[movies["clean_title"].str.contains(movie_name_clean)]
     if not partial_match.empty:
         movie_id = partial_match.iloc[0]["movieId"]
-
-        if movie_id in movie_ids:
-            return movie_ids.index(movie_id)
+        return movieid_to_index.get(movie_id)
 
     return None
 
@@ -63,18 +59,27 @@ def recommend_movies(movie_name, top_n=10):
     try:
         idx = get_movie_index(movie_name)
 
-        # ❌ movie not found
+        # ❌ fallback
         if idx is None:
             return get_popular_movies(top_n)
 
-        # 🔥 KNN search
+        # 🔥 GET VECTOR
+        query = model._fit_X[idx]
+
+        # 🔥 FIX: ensure 2D array (VERY IMPORTANT)
+        if hasattr(query, "toarray"):
+            query = query.toarray()
+
+        if len(query.shape) == 1:
+            query = query.reshape(1, -1)
+
+        # 🔥 KNN SEARCH
         distances, indices = model.kneighbors(
-            model._fit_X[idx],
+            query,
             n_neighbors=top_n + 1
         )
 
-        # remove itself
-        indices = indices[0][1:]
+        indices = indices[0][1:]  # remove itself
 
         recommended = []
 
@@ -96,7 +101,4 @@ def recommend_movies(movie_name, top_n=10):
 # POPULAR MOVIES (FALLBACK)
 # =========================
 def get_popular_movies(top_n=10):
-    """
-    fallback if movie not found
-    """
     return movies["title"].head(top_n).tolist()

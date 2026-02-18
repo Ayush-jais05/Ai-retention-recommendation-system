@@ -69,7 +69,7 @@ def recommend_movies(movie_name, top_n=10):
 
         # 🔥 KNN search
         distances, indices = model.kneighbors(
-            [model._fit_X[idx]],
+            model._fit_X[idx],
             n_neighbors=top_n + 1
         )
 

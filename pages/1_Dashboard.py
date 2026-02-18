@@ -230,4 +230,4 @@ if st.button("🚀 Analyze User"):
 # FOOTER
 # =========================
 st.markdown("---")
-st.markdown("<p class='center'>Built with ❤️ by Ayush Raj</p>", unsafe_allow_html=True)
+st.markdown("<p class='center'>Built by Ayush Raj</p>", unsafe_allow_html=True)

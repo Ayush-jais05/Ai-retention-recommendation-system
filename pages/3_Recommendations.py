@@ -184,4 +184,4 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-st.markdown("<p style='text-align:center;'>Built with ❤️ by Ayush Raj</p>", unsafe_allow_html=True)
+st.markdown("<p style='text-align:center;'>Built by Ayush Raj</p>", unsafe_allow_html=True)

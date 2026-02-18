@@ -48,7 +48,7 @@ st.markdown("""
 # HEADER
 # =========================
 st.markdown("## 📊 Analytics Dashboard")
-st.markdown("Understand churn patterns & recommendation intelligence 🚀")
+st.markdown("Advanced churn, segmentation & recommendation insights")
 st.markdown("---")
 
 # =========================
@@ -63,40 +63,48 @@ data = pd.DataFrame({
     "skip_rate": np.random.uniform(0, 1, 300)
 })
 
-# feature engineering
+# Feature engineering
 data["engagement"] = data["watch_time"] / (data["last_login"] + 1)
 data["binge"] = data["watch_time"] / (data["genres"] + 1)
-
-# churn simulation
 data["churn"] = (data["engagement"] < 5).astype(int)
+
+# =========================
+# USER SEGMENTATION 🔥
+# =========================
+kmeans = KMeans(n_clusters=3, random_state=42)
+data["segment"] = kmeans.fit_predict(
+    data[["watch_time", "last_login", "engagement"]]
+)
+
+segment_map = {
+    0: "Low Engagement",
+    1: "Binge Watchers",
+    2: "Casual Users"
+}
+data["segment_label"] = data["segment"].map(segment_map)
 
 # =========================
 # KPI METRICS
 # =========================
 col1, col2, col3, col4 = st.columns(4)
 
-col1.metric("👀 Avg Watch Time", f"{int(data['watch_time'].mean())} mins")
-col2.metric("⚠️ Churn Rate", f"{data['churn'].mean()*100:.1f}%")
-col3.metric("🎬 Avg Genres", int(data["genres"].mean()))
-col4.metric("🔥 Engagement", f"{data['engagement'].mean():.2f}")
+col1.metric("Avg Watch Time", f"{int(data['watch_time'].mean())} mins")
+col2.metric("Churn Rate", f"{data['churn'].mean()*100:.1f}%")
+col3.metric("Avg Genres", int(data["genres"].mean()))
+col4.metric("Engagement Score", f"{data['engagement'].mean():.2f}")
 
 st.markdown("---")
 
 # =========================
-# USER SEGMENTATION 🔥
+# USER SEGMENTATION VISUAL
 # =========================
-st.markdown("## 🧠 User Segmentation (Clustering)")
-
-features = data[["watch_time", "last_login", "genres", "skip_rate"]]
-
-kmeans = KMeans(n_clusters=3, random_state=42)
-data["segment"] = kmeans.fit_predict(features)
+st.markdown("## 👥 User Segmentation")
 
 fig_seg = px.scatter(
     data,
     x="watch_time",
     y="engagement",
-    color="segment",
+    color="segment_label",
     title="User Segments",
     template="plotly_dark"
 )
@@ -104,40 +112,43 @@ fig_seg = px.scatter(
 st.plotly_chart(fig_seg, use_container_width=True)
 
 # =========================
-# SEGMENT INSIGHTS
+# RETENTION COHORT 🔥
 # =========================
-st.markdown("### 🎯 Segment Meaning")
+st.markdown("## 📅 Retention Cohorts")
 
-st.markdown("""
-<div class="card">
+data["cohort"] = pd.cut(data["last_login"], bins=[0, 5, 10, 20, 30],
+                       labels=["0-5d", "5-10d", "10-20d", "20-30d"])
 
-🟢 Segment 0 → High engagement users (loyal users)  
-🟡 Segment 1 → Medium users (can churn soon)  
-🔴 Segment 2 → Low engagement users (high risk)  
-
-</div>
-""", unsafe_allow_html=True)
-
-# =========================
-# RETENTION COHORTS 🔥
-# =========================
-st.markdown("## ⏳ Retention Cohort Analysis")
-
-data["cohort"] = pd.cut(data["last_login"], bins=[0,5,10,20,30], labels=["Active","Warm","Cold","Lost"])
-
-cohort_data = data.groupby(["cohort", "churn"]).size().reset_index(name="count")
+cohort_data = data.groupby("cohort")["churn"].mean().reset_index()
 
 fig_cohort = px.bar(
     cohort_data,
     x="cohort",
-    y="count",
-    color="churn",
-    barmode="group",
-    title="Retention Cohorts",
+    y="churn",
+    title="Churn by User Cohort",
     template="plotly_dark"
 )
 
 st.plotly_chart(fig_cohort, use_container_width=True)
+
+# =========================
+# CHURN ANALYSIS
+# =========================
+st.markdown("## 📉 Churn Insights")
+
+col1, col2 = st.columns(2)
+
+with col1:
+    fig1 = px.box(data, x="churn", y="watch_time",
+                  title="Watch Time vs Churn",
+                  template="plotly_dark")
+    st.plotly_chart(fig1, use_container_width=True)
+
+with col2:
+    fig2 = px.box(data, x="churn", y="skip_rate",
+                  title="Skip Rate vs Churn",
+                  template="plotly_dark")
+    st.plotly_chart(fig2, use_container_width=True)
 
 # =========================
 # RECOMMENDER ANALYTICS
@@ -145,14 +156,14 @@ st.plotly_chart(fig_cohort, use_container_width=True)
 st.markdown("## 🎬 Recommendation Analytics")
 
 rec_data = pd.DataFrame({
-    "movies": movies["title"].sample(150, replace=True),
-    "clicks": np.random.randint(10, 500, 150),
-    "watch_time": np.random.randint(20, 200, 150)
+    "movies": movies["title"].sample(100, replace=True).values,
+    "clicks": np.random.randint(10, 500, 100),
+    "watch_time": np.random.randint(20, 200, 100)
 })
 
 top_movies = rec_data.groupby("movies")["clicks"].sum().sort_values(ascending=False).head(10)
 
-fig_top = px.bar(
+fig3 = px.bar(
     x=top_movies.values,
     y=top_movies.index,
     orientation='h',
@@ -160,23 +171,7 @@ fig_top = px.bar(
     template="plotly_dark"
 )
 
-st.plotly_chart(fig_top, use_container_width=True)
-
-# =========================
-# PERFORMANCE
-# =========================
-st.markdown("### 🎯 Recommendation Performance")
-
-fig_perf = px.scatter(
-    rec_data,
-    x="clicks",
-    y="watch_time",
-    size="clicks",
-    title="Engagement vs Watch Time",
-    template="plotly_dark"
-)
-
-st.plotly_chart(fig_perf, use_container_width=True)
+st.plotly_chart(fig3, use_container_width=True)
 
 # =========================
 # PERSONALIZED STRATEGY ENGINE 🔥
@@ -184,40 +179,30 @@ st.plotly_chart(fig_perf, use_container_width=True)
 st.markdown("## 💡 Personalized Strategy Engine")
 
 def strategy(row):
-    if row["segment"] == 2:
-        return "🔥 Offer discounts + strong recommendations"
+    if row["churn"] == 1 and row["segment"] == 0:
+        return "Offer discounts + strong recommendations"
     elif row["segment"] == 1:
-        return "⚡ Send notifications & personalized content"
+        return "Push trending & binge-worthy content"
     else:
-        return "✅ Maintain experience"
+        return "Maintain engagement with notifications"
 
 data["strategy"] = data.apply(strategy, axis=1)
 
-sample_users = data.sample(5)[["watch_time","last_login","segment","strategy"]]
+strategy_counts = data["strategy"].value_counts().reset_index()
+strategy_counts.columns = ["Strategy", "Users"]
 
-st.dataframe(sample_users)
+fig4 = px.bar(
+    strategy_counts,
+    x="Strategy",
+    y="Users",
+    title="Recommended Retention Strategies",
+    template="plotly_dark"
+)
 
-# =========================
-# INSIGHTS
-# =========================
-st.markdown("## 🧠 Key Insights")
-
-st.markdown("""
-<div class="card">
-
-🔥 Low engagement users → highest churn  
-
-📉 High skip rate → bad content matching  
-
-🎯 Personalized recommendations increase retention  
-
-📊 Segmentation helps targeted marketing  
-
-</div>
-""", unsafe_allow_html=True)
+st.plotly_chart(fig4, use_container_width=True)
 
 # =========================
 # FOOTER
 # =========================
 st.markdown("---")
-st.markdown("<p style='text-align:center;'>Built with ❤️ by Ayush Raj</p>", unsafe_allow_html=True)
+st.markdown("<p style='text-align:center;'>Built by Ayush Raj</p>", unsafe_allow_html=True)

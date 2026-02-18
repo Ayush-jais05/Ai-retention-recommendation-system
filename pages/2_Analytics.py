@@ -7,6 +7,7 @@ import plotly.express as px
 import numpy as np
 import joblib
 from sklearn.cluster import KMeans
+from sklearn.preprocessing import StandardScaler
 
 # =========================
 # PAGE CONFIG
@@ -14,12 +15,11 @@ from sklearn.cluster import KMeans
 st.set_page_config(
     page_title="Analytics Dashboard",
     layout="wide",
-    page_icon="📊",
-    initial_sidebar_state="expanded"
+    page_icon="📊"
 )
 
 # =========================
-# LOAD MODELS 🔥 (REAL ML)
+# LOAD MODELS
 # =========================
 churn_model = joblib.load("models/churn_model.pkl")
 scaler = joblib.load("models/scaler.pkl")
@@ -27,42 +27,24 @@ feature_columns = joblib.load("models/feature_columns.pkl")
 movies = joblib.load("models/movies.pkl")
 
 # =========================
-# UI STYLE
-# =========================
-st.markdown("""
-<style>
-.main {
-    background: linear-gradient(135deg, #020617, #0f172a);
-    color: white;
-}
-.card {
-    background: rgba(255,255,255,0.06);
-    padding: 20px;
-    border-radius: 16px;
-    margin-bottom: 20px;
-    backdrop-filter: blur(12px);
-    border: 1px solid rgba(255,255,255,0.08);
-}
-</style>
-""", unsafe_allow_html=True)
-
-# =========================
 # HEADER
 # =========================
-st.markdown("## 📊 Analytics Dashboard")
-st.markdown("Model-driven churn, segmentation & recommendation intelligence")
+st.title("📊 Analytics Dashboard")
+st.caption("Model-driven churn, segmentation & recommendation insights")
 st.markdown("---")
 
 # =========================
-# GENERATE DATA (SIMULATION)
+# CREATE USER DATA (SMART SIMULATION 🔥)
 # =========================
 np.random.seed(42)
 
+n_users = 300
+
 data = pd.DataFrame({
-    "watch_time_per_day": np.random.randint(20, 300, 300),
-    "last_login_days": np.random.randint(1, 30, 300),
-    "genres_watched": np.random.randint(1, 10, 300),
-    "skip_rate": np.random.uniform(0, 1, 300)
+    "watch_time_per_day": np.random.randint(30, 250, n_users),
+    "last_login_days": np.random.randint(1, 30, n_users),
+    "genres_watched": np.random.randint(1, 8, n_users),
+    "skip_rate": np.random.uniform(0.1, 0.9, n_users)
 })
 
 # =========================
@@ -72,34 +54,35 @@ data["engagement_score"] = data["watch_time_per_day"] / (data["last_login_days"]
 data["binge_factor"] = data["watch_time_per_day"] / (data["genres_watched"] + 1)
 
 # =========================
-# APPLY SCALER + MODEL 🔥
+# APPLY MODEL (REAL 🔥)
 # =========================
 X = data[feature_columns]
 X_scaled = scaler.transform(X)
 
-# real predictions
 data["churn_prob"] = churn_model.predict_proba(X_scaled)[:, 1]
 data["churn"] = (data["churn_prob"] > 0.5).astype(int)
 
 # =========================
-# USER SEGMENTATION (SMART LABELING 🔥)
+# SEGMENTATION (SCALED 🔥)
 # =========================
-kmeans = KMeans(n_clusters=3, random_state=42)
-data["segment"] = kmeans.fit_predict(
-    data[["watch_time_per_day", "engagement_score"]]
-)
+seg_features = data[["watch_time_per_day", "engagement_score"]]
 
-# 🔥 dynamic labeling using centroid logic
+seg_scaled = StandardScaler().fit_transform(seg_features)
+
+kmeans = KMeans(n_clusters=3, random_state=42, n_init=10)
+data["segment"] = kmeans.fit_predict(seg_scaled)
+
+# dynamic naming
 centroids = kmeans.cluster_centers_
+order = np.argsort(centroids[:, 0])
 
-sorted_idx = np.argsort(centroids[:, 0])  # sort by watch_time
+labels = {
+    order[0]: "Low Engagement",
+    order[1]: "Casual Users",
+    order[2]: "Binge Watchers"
+}
 
-segment_names = {}
-segment_names[sorted_idx[0]] = "Low Engagement"
-segment_names[sorted_idx[1]] = "Casual Users"
-segment_names[sorted_idx[2]] = "Binge Watchers"
-
-data["segment_label"] = data["segment"].map(segment_names)
+data["segment_label"] = data["segment"].map(labels)
 
 # =========================
 # KPI METRICS
@@ -116,24 +99,14 @@ st.markdown("---")
 # =========================
 # SEGMENTATION VISUAL
 # =========================
-st.markdown("## 👥 User Segmentation")
+st.subheader("👥 User Segmentation")
 
 fig_seg = px.scatter(
     data,
     x="watch_time_per_day",
     y="engagement_score",
     color="segment_label",
-    title="User Segments",
     template="plotly_dark"
-)
-
-# 🔥 plot centroids
-fig_seg.add_scatter(
-    x=centroids[:, 0],
-    y=centroids[:, 1],
-    mode='markers',
-    marker=dict(size=15, color='white', symbol='x'),
-    name="Centroids"
 )
 
 st.plotly_chart(fig_seg, use_container_width=True)
@@ -141,7 +114,7 @@ st.plotly_chart(fig_seg, use_container_width=True)
 # =========================
 # RETENTION COHORT
 # =========================
-st.markdown("## 📅 Retention Cohorts")
+st.subheader("📅 Retention Cohorts")
 
 data["cohort"] = pd.cut(
     data["last_login_days"],
@@ -149,98 +122,78 @@ data["cohort"] = pd.cut(
     labels=["0-5d", "5-10d", "10-20d", "20-30d"]
 )
 
-cohort_data = data.groupby("cohort")["churn"].mean().reset_index()
+cohort = data.groupby("cohort")["churn"].mean().reset_index()
 
 fig_cohort = px.bar(
-    cohort_data,
+    cohort,
     x="cohort",
     y="churn",
-    title="Churn by Cohort",
     template="plotly_dark"
 )
 
 st.plotly_chart(fig_cohort, use_container_width=True)
 
 # =========================
-# CHURN ANALYSIS
+# CHURN INSIGHTS
 # =========================
-st.markdown("## 📉 Churn Insights")
+st.subheader("📉 Churn Analysis")
 
 col1, col2 = st.columns(2)
 
 with col1:
-    fig1 = px.box(
-        data,
-        x="churn",
-        y="watch_time_per_day",
-        title="Watch Time vs Churn",
-        template="plotly_dark"
+    st.plotly_chart(
+        px.box(data, x="churn", y="watch_time_per_day", template="plotly_dark"),
+        use_container_width=True
     )
-    st.plotly_chart(fig1, use_container_width=True)
 
 with col2:
-    fig2 = px.box(
-        data,
-        x="churn",
-        y="skip_rate",
-        title="Skip Rate vs Churn",
-        template="plotly_dark"
+    st.plotly_chart(
+        px.box(data, x="churn", y="skip_rate", template="plotly_dark"),
+        use_container_width=True
     )
-    st.plotly_chart(fig2, use_container_width=True)
 
 # =========================
-# RECOMMENDER ANALYTICS
+# RECOMMENDER ANALYTICS (REAL DATA 🔥)
 # =========================
-st.markdown("## 🎬 Recommendation Analytics")
+st.subheader("🎬 Recommendation Analytics")
 
-rec_data = pd.DataFrame({
-    "movies": movies["title"].sample(150, replace=True).values,
-    "clicks": np.random.randint(10, 500, 150),
-    "watch_time": np.random.randint(20, 200, 150)
-})
+# use real movie dataset instead of random
+top_movies = movies["title"].value_counts().head(10)
 
-top_movies = rec_data.groupby("movies")["clicks"].sum().sort_values(ascending=False).head(10)
-
-fig3 = px.bar(
+fig_rec = px.bar(
     x=top_movies.values,
     y=top_movies.index,
     orientation='h',
-    title="Top Recommended Movies",
     template="plotly_dark"
 )
 
-st.plotly_chart(fig3, use_container_width=True)
+st.plotly_chart(fig_rec, use_container_width=True)
 
 # =========================
-# STRATEGY ENGINE 🔥
+# STRATEGY ENGINE
 # =========================
-st.markdown("## 💡 Personalized Strategy Engine")
+st.subheader("💡 Strategy Engine")
 
 def strategy(row):
     if row["churn"] == 1 and row["segment_label"] == "Low Engagement":
-        return "Discount + strong recommendations"
+        return "High Risk: Offer discounts + strong recommendations"
     elif row["segment_label"] == "Binge Watchers":
-        return "Upsell premium + early releases"
+        return "Upsell premium content"
     else:
-        return "Push personalized content"
+        return "Send personalized notifications"
 
 data["strategy"] = data.apply(strategy, axis=1)
 
-strategy_counts = data["strategy"].value_counts().reset_index()
-strategy_counts.columns = ["Strategy", "Users"]
+strategy_df = data["strategy"].value_counts().reset_index()
+strategy_df.columns = ["Strategy", "Users"]
 
-fig4 = px.bar(
-    strategy_counts,
-    x="Strategy",
-    y="Users",
-    title="Retention Strategies",
-    template="plotly_dark"
+st.plotly_chart(
+    px.bar(strategy_df, x="Strategy", y="Users", template="plotly_dark"),
+    use_container_width=True
 )
-
-st.plotly_chart(fig4, use_container_width=True)
 
 # =========================
 # FOOTER
 # =========================
 st.markdown("---")
-st.markdown("<p style='text-align:center;'>Built by Ayush Raj</p>", unsafe_allow_html=True)
+st.caption("Built by Ayush Raj")

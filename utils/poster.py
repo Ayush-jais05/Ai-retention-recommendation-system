@@ -3,7 +3,7 @@ import streamlit as st
 import re
 
 # =========================
-# LOAD API KEY (SAFE 🔐)
+# LOAD API KEY 🔐
 # =========================
 API_KEY = st.secrets.get("TMDB_API_KEY")
 
@@ -15,32 +15,36 @@ IMAGE_BASE = "https://image.tmdb.org/t/p/w500"
 # CLEAN MOVIE NAME 🔥
 # =========================
 def clean_movie_name(name):
-    """
-    Remove year (1999) from title
-    """
     return re.sub(r"\(\d{4}\)", "", name).strip()
 
 
+def extract_year(name):
+    match = re.search(r"\((\d{4})\)", name)
+    return match.group(1) if match else None
+
+
 # =========================
-# SEARCH MOVIE (FIXED 🔥)
+# SEARCH MOVIE (SMART 🔥)
 # =========================
 def search_movie(movie_name):
-    """
-    Search movie in TMDB and return best match
-    """
-
     if not API_KEY:
         return None
 
     try:
-        # 🔥 IMPORTANT FIX
+        year = extract_year(movie_name)
         movie_name = clean_movie_name(movie_name)
 
         url = f"{BASE_URL}/search/movie"
+
         params = {
             "api_key": API_KEY,
-            "query": movie_name
+            "query": movie_name,
+            "include_adult": False,
+            "language": "en-US"
         }
+
+        if year:
+            params["year"] = year
 
         response = requests.get(url, params=params, timeout=5)
 
@@ -48,18 +52,18 @@ def search_movie(movie_name):
             return None
 
         data = response.json()
-
         results = data.get("results", [])
 
-        if results:
-            # 🔥 pick best result by popularity
-            results = sorted(results, key=lambda x: x.get("popularity", 0), reverse=True)
-            return results[0]
+        if not results:
+            return None
+
+        # 🎯 sort by popularity (better match)
+        results = sorted(results, key=lambda x: x.get("popularity", 0), reverse=True)
+
+        return results[0]
 
     except Exception:
-        pass
-
-    return None
+        return None
 
 
 # =========================
@@ -67,9 +71,6 @@ def search_movie(movie_name):
 # =========================
 @st.cache_data(show_spinner=False)
 def fetch_poster(movie_name):
-    """
-    Get movie poster URL
-    """
     movie = search_movie(movie_name)
 
     if movie and movie.get("poster_path"):
@@ -83,9 +84,6 @@ def fetch_poster(movie_name):
 # =========================
 @st.cache_data(show_spinner=False)
 def fetch_trailer(movie_name):
-    """
-    Get YouTube trailer URL
-    """
     if not API_KEY:
         return None
 
@@ -106,22 +104,23 @@ def fetch_trailer(movie_name):
             return None
 
         data = response.json()
-
         results = data.get("results", [])
 
-        if results:
-            # 🎯 Trailer first
-            for vid in results:
-                if vid["type"] == "Trailer" and vid["site"] == "YouTube":
-                    return f"https://www.youtube.com/watch?v={vid['key']}"
+        if not results:
+            return None
 
-            # fallback → any video
-            for vid in results:
-                if vid["site"] == "YouTube":
-                    return f"https://www.youtube.com/watch?v={vid['key']}"
+        # 🎯 prefer trailer
+        for vid in results:
+            if vid["type"] == "Trailer" and vid["site"] == "YouTube":
+                return f"https://www.youtube.com/watch?v={vid['key']}"
+
+        # fallback
+        for vid in results:
+            if vid["site"] == "YouTube":
+                return f"https://www.youtube.com/watch?v={vid['key']}"
 
     except Exception:
-        pass
+        return None
 
     return None
 
@@ -136,7 +135,7 @@ def fetch_trending_movies():
 
     try:
         url = f"{BASE_URL}/trending/movie/day"
-        params = {"api_key": API_KEY}
+        params = {"api_key": API_KEY, "language": "en-US"}
 
         response = requests.get(url, params=params, timeout=5)
 
@@ -152,7 +151,7 @@ def fetch_trending_movies():
 
 
 # =========================
-# FETCH MOVIES BY GENRE 🎬
+# GENRE MAP 🎬 (FIXED ✅)
 # =========================
 GENRE_MAP = {
     "action": 28,
@@ -160,10 +159,13 @@ GENRE_MAP = {
     "romance": 10749,
     "horror": 27,
     "comedy": 35,
-    "scifi": 878   # (Science Fiction)
+    "scifi": 878
 }
 
 
+# =========================
+# FETCH MOVIES BY GENRE 🎬
+# =========================
 @st.cache_data(show_spinner=False)
 def fetch_movies_by_genre(genre_name):
     if not API_KEY:
@@ -172,11 +174,18 @@ def fetch_movies_by_genre(genre_name):
     try:
         genre_id = GENRE_MAP.get(genre_name.lower())
 
+        # ❌ important fix
+        if not genre_id:
+            return []
+
         url = f"{BASE_URL}/discover/movie"
+
         params = {
             "api_key": API_KEY,
             "with_genres": genre_id,
-            "sort_by": "popularity.desc"
+            "sort_by": "popularity.desc",
+            "language": "en-US",
+            "include_adult": False
         }
 
         response = requests.get(url, params=params, timeout=5)

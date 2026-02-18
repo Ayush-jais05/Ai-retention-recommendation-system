@@ -1,5 +1,6 @@
 import requests
 import streamlit as st
+import re
 
 # =========================
 # LOAD API KEY (SAFE 🔐)
@@ -11,16 +12,30 @@ IMAGE_BASE = "https://image.tmdb.org/t/p/w500"
 
 
 # =========================
-# HELPER: SEARCH MOVIE
+# CLEAN MOVIE NAME 🔥
+# =========================
+def clean_movie_name(name):
+    """
+    Remove year (1999) from title
+    """
+    return re.sub(r"\(\d{4}\)", "", name).strip()
+
+
+# =========================
+# SEARCH MOVIE (FIXED 🔥)
 # =========================
 def search_movie(movie_name):
     """
-    Search movie in TMDB and return first result
+    Search movie in TMDB and return best match
     """
+
     if not API_KEY:
-        return None  # prevents crash if key missing
+        return None
 
     try:
+        # 🔥 IMPORTANT FIX
+        movie_name = clean_movie_name(movie_name)
+
         url = f"{BASE_URL}/search/movie"
         params = {
             "api_key": API_KEY,
@@ -29,14 +44,17 @@ def search_movie(movie_name):
 
         response = requests.get(url, params=params, timeout=5)
 
-        # check valid response
         if response.status_code != 200:
             return None
 
         data = response.json()
 
-        if data.get("results"):
-            return data["results"][0]
+        results = data.get("results", [])
+
+        if results:
+            # 🔥 pick best result by popularity
+            results = sorted(results, key=lambda x: x.get("popularity", 0), reverse=True)
+            return results[0]
 
     except Exception:
         pass
@@ -89,14 +107,16 @@ def fetch_trailer(movie_name):
 
         data = response.json()
 
-        if data.get("results"):
-            # first try trailer
-            for vid in data["results"]:
+        results = data.get("results", [])
+
+        if results:
+            # 🎯 Trailer first
+            for vid in results:
                 if vid["type"] == "Trailer" and vid["site"] == "YouTube":
                     return f"https://www.youtube.com/watch?v={vid['key']}"
 
-            # fallback: teaser (nice touch 🔥)
-            for vid in data["results"]:
+            # fallback → any video
+            for vid in results:
                 if vid["site"] == "YouTube":
                     return f"https://www.youtube.com/watch?v={vid['key']}"
 
@@ -104,6 +124,7 @@ def fetch_trailer(movie_name):
         pass
 
     return None
+
 
 # =========================
 # FETCH TRENDING 🔥
@@ -117,7 +138,12 @@ def fetch_trending_movies():
         url = f"{BASE_URL}/trending/movie/day"
         params = {"api_key": API_KEY}
 
-        data = requests.get(url, params=params, timeout=5).json()
+        response = requests.get(url, params=params, timeout=5)
+
+        if response.status_code != 200:
+            return []
+
+        data = response.json()
 
         return [m["title"] for m in data.get("results", [])[:10]]
 
@@ -128,7 +154,6 @@ def fetch_trending_movies():
 # =========================
 # FETCH MOVIES BY GENRE 🎬
 # =========================
-# TMDB Genre IDs
 GENRE_MAP = {
     "action": 28,
     "drama": 18,
@@ -150,7 +175,12 @@ def fetch_movies_by_genre(genre_name):
             "sort_by": "popularity.desc"
         }
 
-        data = requests.get(url, params=params, timeout=5).json()
+        response = requests.get(url, params=params, timeout=5)
+
+        if response.status_code != 200:
+            return []
+
+        data = response.json()
 
         return [m["title"] for m in data.get("results", [])[:10]]
 

@@ -34,15 +34,22 @@ st.markdown("---")
 @st.cache_data
 def load_movies():
     movies = joblib.load("models/movies.pkl")
+
+    # clean title
     movies["clean"] = movies["title"].str.lower().str.strip()
+
+    # extract year
+    movies["year"] = movies["title"].str.extract(r"\((\d{4})\)").astype(float)
+
+    # sort by latest movies 🔥
+    movies = movies.sort_values(by="year", ascending=False)
+
     return movies
 
 movies_df = load_movies()
 
-# 🔥 LIMIT BASE LIST TO 3000 (IMPORTANT)
-movies_df = movies_df.head(3000)
-
-movie_list = movies_df["title"].tolist()
+# 🔥 KEEP LARGE DATA FOR SEARCH (3509)
+movies_df = movies_df.head(3509)
 
 # =========================
 # SEARCH SYSTEM 🔍
@@ -54,30 +61,38 @@ search_query = st.text_input("Type movie name...")
 def normalize(text):
     return text.lower().strip()
 
-# 🔥 SMART FILTERING
+# =========================
+# SMART FILTERING
+# =========================
+MAX_DEFAULT = 100   # 🔥 latest 100 movies
+
 if search_query:
     filtered_df = movies_df[
         movies_df["clean"].str.contains(normalize(search_query), regex=False)
     ]
 
-    # 🔥 LIMIT DISPLAY (UI SAFE)
+    # limit UI results
     filtered_df = filtered_df.head(200)
 
 else:
-    # 🔥 SHOW POPULAR / FIRST 200
-    filtered_df = movies_df.head(200)
+    # 🔥 show latest movies only
+    filtered_df = movies_df.head(MAX_DEFAULT)
 
 filtered_movies = filtered_df["title"].tolist()
 
-# show count (REAL COUNT, not limited one)
+# =========================
+# RESULT COUNT
+# =========================
 if search_query:
     total_matches = movies_df[
         movies_df["clean"].str.contains(normalize(search_query), regex=False)
     ].shape[0]
 
-    st.caption(f"{total_matches} results found (showing top {len(filtered_movies)})")
+    st.caption(f"{total_matches} results found (showing {len(filtered_movies)})")
 
-# dropdown
+# =========================
+# DROPDOWN
+# =========================
 if filtered_movies:
     selected_movie = st.selectbox("🎬 Select Movie", filtered_movies)
 else:
@@ -144,7 +159,7 @@ def show_row(title, movies):
 
             trailer = fetch_trailer(movie)
             if trailer:
-                st.link_button("▶", trailer)
+                st.link_button("▶ Trailer", trailer)
 
 # =========================
 # REAL-TIME SECTIONS

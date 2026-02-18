@@ -114,8 +114,7 @@ with col1:
         </p>
     </div>
     """, unsafe_allow_html=True)
-col_btn = st.columns([1,2,1])
-with col_btn[1]:
+
     if st.button("Open Recommendations"):
         st.switch_page("pages/3_Recommendations.py")
 
@@ -128,8 +127,7 @@ with col2:
         </p>
     </div>
     """, unsafe_allow_html=True)
-col_btn = st.columns([1,2,1])
-with col_btn[1]:
+
     if st.button("Open Churn Dashboard"):
         st.switch_page("pages/1_Dashboard.py")
 
@@ -142,11 +140,10 @@ with col3:
         </p>
     </div>
     """, unsafe_allow_html=True)
-col_btn = st.columns([1,2,1])
-with col_btn[1]:
+
     if st.button("Open Analytics"):
         st.switch_page("pages/2_Analytics.py")
-        
+
 st.markdown("---")
 
 # =========================

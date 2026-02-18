@@ -18,6 +18,7 @@ from utils.poster import (
 st.set_page_config(
     page_title="Recommendation Engine",
     layout="wide",
+    page_icon="🎬",
     initial_sidebar_state="expanded"
 )
 
@@ -170,7 +171,9 @@ show_row("🔥 Trending Now (Real-Time)", fetch_trending_movies())
 show_row("💥 Action Movies (Real-Time)", fetch_movies_by_genre("action"))
 show_row("🎭 Drama Movies (Real-Time)", fetch_movies_by_genre("drama"))
 show_row("❤️ Romance Movies (Real-Time)", fetch_movies_by_genre("romance"))
-
+show_row("👻 Horror Movies (Real-Time)", fetch_movies_by_genre("horror"))
+show_row("😂 Comedy Movies (Real-Time)", fetch_movies_by_genre("comedy"))
+show_row("🚀 Sci-Fi Movies (Real-Time)", fetch_movies_by_genre("science fiction"))
 # =========================
 # FOOTER
 # =========================

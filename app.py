@@ -11,7 +11,7 @@ st.set_page_config(
 )
 
 # =========================
-# CUSTOM CSS (PREMIUM UI 🔥)
+# CUSTOM CSS 🔥 PREMIUM UI
 # =========================
 st.markdown("""
 <style>
@@ -22,20 +22,27 @@ st.markdown("""
     color: white;
 }
 
-/* glass cards */
+/* hero gradient text */
+.gradient-text {
+    background: linear-gradient(90deg, #6366f1, #06b6d4);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* cards */
 .card {
-    background: rgba(255,255,255,0.08);
+    background: rgba(255,255,255,0.07);
     padding: 25px;
     border-radius: 18px;
-    backdrop-filter: blur(12px);
-    border: 1px solid rgba(255,255,255,0.1);
+    backdrop-filter: blur(14px);
+    border: 1px solid rgba(255,255,255,0.08);
     text-align: center;
     transition: all 0.3s ease;
 }
 
 .card:hover {
-    transform: scale(1.05);
-    box-shadow: 0 10px 25px rgba(0,0,0,0.6);
+    transform: translateY(-6px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.6);
 }
 
 /* buttons */
@@ -48,10 +55,15 @@ st.markdown("""
     padding: 10px;
 }
 
-/* subtle text */
+/* subtext */
 .subtext {
     color: #94a3b8;
     font-size: 16px;
+}
+
+.metric-box {
+    text-align: center;
+    padding: 15px;
 }
 
 </style>
@@ -61,29 +73,39 @@ st.markdown("""
 # HERO SECTION 🔥
 # =========================
 st.markdown("""
-<div style='text-align:center; padding:60px'>
-    <h1 style='font-size:56px;'>🎬 AI Movie Intelligence</h1>
-    <p class='subtext'>
-        Smart platform for movie recommendations & user retention analytics 🚀
+<div style='text-align:center; padding:70px'>
+    <h1 class='gradient-text' style='font-size:64px;'>🎬 AI Movie Intelligence</h1>
+    <p class='subtext' style='font-size:20px;'>
+        ML-powered platform combining recommendation systems & churn prediction 🚀
     </p>
 </div>
 """, unsafe_allow_html=True)
 
+# =========================
+# STATS SECTION (🔥 RESUME BOOST)
+# =========================
+col1, col2, col3, col4 = st.columns(4)
+
+col1.markdown("<div class='metric-box'><h2>3000+</h2><p class='subtext'>Movies</p></div>", unsafe_allow_html=True)
+col2.markdown("<div class='metric-box'><h2>KNN</h2><p class='subtext'>Model</p></div>", unsafe_allow_html=True)
+col3.markdown("<div class='metric-box'><h2>ML</h2><p class='subtext'>Churn Prediction</p></div>", unsafe_allow_html=True)
+col4.markdown("<div class='metric-box'><h2>Real-Time</h2><p class='subtext'>TMDB API</p></div>", unsafe_allow_html=True)
+
 st.markdown("---")
 
 # =========================
-# QUICK NAVIGATION
+# MODULE NAVIGATION 🔥
 # =========================
 st.markdown("## 🚀 Explore Modules")
 
-col1, col2 = st.columns(2)
+col1, col2, col3 = st.columns(3)
 
 with col1:
     st.markdown("""
     <div class="card">
         <h3>📉 Churn Intelligence</h3>
         <p class='subtext'>
-        Predict user drop-off using behavioral ML models.
+        Predict user drop-off using ML models and behavioral data.
         </p>
     </div>
     """, unsafe_allow_html=True)
@@ -96,7 +118,7 @@ with col2:
     <div class="card">
         <h3>🎬 Recommendation Engine</h3>
         <p class='subtext'>
-        Discover personalized movie suggestions powered by AI.
+        KNN-based movie recommendations with real-time posters & trailers.
         </p>
     </div>
     """, unsafe_allow_html=True)
@@ -104,42 +126,57 @@ with col2:
     if st.button("Go to Recommendations"):
         st.switch_page("pages/3_Recommendations.py")
 
+with col3:
+    st.markdown("""
+    <div class="card">
+        <h3>📊 Analytics Engine</h3>
+        <p class='subtext'>
+        User segmentation, retention cohorts & recommendation insights.
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
+
+    if st.button("Go to Analytics"):
+        st.switch_page("pages/2_Analytics.py")
+
 st.markdown("---")
 
 # =========================
-# FEATURES SECTION
+# FEATURES 🔥
 # =========================
 st.markdown("## ⚡ Key Features")
 
-col1, col2, col3 = st.columns(3)
+col1, col2, col3, col4 = st.columns(4)
 
 with col1:
     st.markdown("""
     <div class="card">
         <h4>📉 Churn Prediction</h4>
-        <p class='subtext'>
-        Identify users likely to leave using ML insights.
-        </p>
+        <p class='subtext'>Predict user retention risk using ML</p>
     </div>
     """, unsafe_allow_html=True)
 
 with col2:
     st.markdown("""
     <div class="card">
-        <h4>🎬 Smart Recommendations</h4>
-        <p class='subtext'>
-        KNN-based movie suggestions using real user data.
-        </p>
+        <h4>🎬 Smart Recommender</h4>
+        <p class='subtext'>KNN-based movie similarity engine</p>
     </div>
     """, unsafe_allow_html=True)
 
 with col3:
     st.markdown("""
     <div class="card">
-        <h4>📊 Analytics Dashboard</h4>
-        <p class='subtext'>
-        Visualize engagement and user behavior patterns.
-        </p>
+        <h4>📊 Analytics</h4>
+        <p class='subtext'>Segmentation, cohorts & insights</p>
+    </div>
+    """, unsafe_allow_html=True)
+
+with col4:
+    st.markdown("""
+    <div class="card">
+        <h4>🌐 Real-Time API</h4>
+        <p class='subtext'>Live posters & trailers via TMDB</p>
     </div>
     """, unsafe_allow_html=True)
 
@@ -153,13 +190,13 @@ st.markdown("## 🧠 How It Works")
 st.markdown("""
 <div class="card">
 
-1️⃣ User interaction data is collected  
+1️⃣ User behavior is captured  
 <br><br>
-2️⃣ ML models analyze behavior patterns  
+2️⃣ ML models analyze engagement  
 <br><br>
-3️⃣ System predicts churn probability  
+3️⃣ Churn probability is predicted  
 <br><br>
-4️⃣ AI recommends personalized content  
+4️⃣ Personalized recommendations are delivered  
 
 </div>
 """, unsafe_allow_html=True)
@@ -167,9 +204,9 @@ st.markdown("""
 st.markdown("---")
 
 # =========================
-# FINAL CTA
+# FINAL CTA 🔥
 # =========================
-st.success("🚀 Start exploring using the sidebar or buttons above!")
+st.success("🚀 Ready to explore AI-powered insights? Start from the modules above!")
 
 # =========================
 # FOOTER

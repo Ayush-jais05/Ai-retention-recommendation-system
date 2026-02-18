@@ -1,182 +1,196 @@
-# 🎬 AI Customer Retention & Recommendation System
+# 🎬 AI Movie Intelligence Platform
 
-An end-to-end Machine Learning system that predicts user churn on a streaming platform and provides personalized movie recommendations with explainable AI insights.
+An end-to-end machine learning system that combines **churn prediction, recommendation systems, and user analytics** for a streaming platform use case. The project simulates real-world applications like Netflix or Hotstar by identifying at-risk users and improving engagement through personalized recommendations.
 
 ---
 
-## 🚀 Project Overview
+## 🚀 Overview
 
-This project simulates a real-world streaming platform (like Netflix/Hotstar) where:
+This project is designed as a full-stack ML product with three core modules:
 
-- 📉 Users at risk of churn are identified using ML
-- 🎬 Personalized recommendations are generated
-- 🔍 Explainable AI (SHAP) provides reasons behind predictions
-- 💡 Retention strategies are suggested based on risk level
+* **Churn Intelligence**: Predicts user churn based on behavioral patterns
+* **Recommendation Engine**: Suggests personalized movies using collaborative filtering
+* **Analytics Dashboard**: Provides insights into user behavior, segmentation, and retention
+
+The system focuses not only on prediction but also on **business-driven decision making**, including retention strategies and user segmentation.
 
 ---
 
 ## 🧠 Key Features
 
-- Predicts churn probability using user behavior
-- Classifies users into High / Medium / Low risk
-- Provides reasons for churn prediction (Explainable AI)
-- Recommends movies using collaborative filtering
-- Handles cold-start users with fallback recommendations
-- Interactive UI built with Streamlit
+* Predicts churn probability using behavioral features
+* Classifies users into High, Medium, and Low risk
+* Generates personalized movie recommendations (KNN-based)
+* Integrates real-time movie posters and trailers using TMDB API
+* Performs user segmentation using clustering
+* Implements retention cohort analysis
+* Includes a personalized strategy engine for user retention
+* Interactive multi-page dashboard built with Streamlit
 
 ---
 
 ## 📊 Dataset
 
-### 🔹 Churn Dataset (Synthetic but Realistic)
+### Churn Dataset (Synthetic)
 
-A behavior-driven dataset was created to simulate streaming platform users.
+A simulated dataset representing user behavior on a streaming platform.
 
-### Features:
-- `watch_time_per_day`
-- `last_login_days`
-- `genres_watched`
-- `skip_rate`
-- `engagement_score` (derived)
-- `binge_factor` (derived)
+**Features:**
 
-### Target:
-- `Churn` (0 = No, 1 = Yes)
+* watch_time_per_day
+* last_login_days
+* genres_watched
+* skip_rate
+* engagement_score (derived)
+* binge_factor (derived)
 
-### Logic:
-Churn is influenced by:
-- Low watch time
-- High inactivity
-- High skip rate
-- Low engagement
+**Target:**
+
+* churn (0 = retained, 1 = churned)
 
 ---
 
-### 🔹 Recommendation Dataset
+### Recommendation Dataset
 
-- MovieLens dataset (ratings + movies)
-- Used for collaborative filtering
+* MovieLens dataset (movies + ratings)
+* Filtered and optimized for scalability and deployment
 
 ---
 
 ## ⚙️ Tech Stack
 
-- Python
-- Pandas, NumPy
-- Scikit-learn
-- Streamlit
-- Plotly
-- SHAP (Explainable AI)
-- Joblib
+* Python
+* Pandas, NumPy
+* Scikit-learn
+* Streamlit
+* Plotly
+* Joblib
+* TMDB API
 
 ---
 
 ## 🧠 Machine Learning Pipeline
 
-1. Data preprocessing & feature engineering
-2. Train-test split
-3. Feature scaling (StandardScaler)
-4. Model training (Logistic Regression)
-5. Model evaluation:
-   - Accuracy
-   - ROC-AUC
-   - Confusion Matrix
-6. Model interpretability using SHAP
-7. Model saving for deployment
+### Churn Model
+
+* Data preprocessing and feature engineering
+* Model training using Logistic Regression
+* Evaluation using accuracy and ROC-AUC
+* Feature importance and explainability
+
+### Recommendation System
+
+* KNN-based collaborative filtering
+* Movie similarity using user interaction patterns
+* Optimized model size for deployment (<100MB)
+* Fallback recommendations for cold-start users
 
 ---
 
-## 📈 Model Insights
+## 📊 Analytics & Intelligence
 
-- High skip rate strongly increases churn probability
-- Users inactive for longer periods are more likely to churn
-- Higher engagement reduces churn risk
-- Watch time has moderate influence on retention
+The analytics module provides deeper insights into user behavior:
+
+* **User Segmentation**: KMeans clustering to group users based on engagement
+* **Retention Cohorts**: Tracks user retention across activity levels
+* **Recommendation Analytics**: Measures engagement (clicks vs watch time)
+* **Strategy Engine**: Suggests actions based on user behavior
 
 ---
 
-## 🎬 Recommendation System
+## 💡 Retention Strategy Logic
 
-- Item-based collaborative filtering
-- Cosine similarity between movies
-- Weighted scoring based on user preferences
-- Fallback to trending movies for new users
+* High Risk → Offer discounts and push personalized content
+* Medium Risk → Send targeted notifications and recommendations
+* Low Risk → Maintain engagement and upsell premium features
 
 ---
 
 ## 📁 Project Structure
 
+```
 project/
 │
 ├── app.py
 ├── requirements.txt
 ├── README.md
 │
+├── pages/
+│   ├── 1_Dashboard.py
+│   ├── 2_Analytics.py
+│   ├── 3_Recommendations.py
+│
 ├── models/
-│ ├── churn_model.pkl
-│ ├── scaler.pkl
-│ ├── feature_columns.pkl
+│   ├── churn_model.pkl
+│   ├── movie_model.pkl
+│   ├── movie_ids.pkl
+│   ├── movies.pkl
+|   ├── feature_columns.pkl
+|   ├── scaler.pkl
 │
 ├── churn/
-│ └── churn_logic.py
+│   └── churn_logic.py
 │
 ├── recommender/
-│ └── recommender.py
+│   └── recommender.py
 │
-├── data/
-│ ├── movies.csv
-│ ├── ratings.csv
-
+├── utils/
+│   └── poster.py
+```
 
 ---
 
 ## ▶️ How to Run
 
-### Clone Repository
+### 1. Clone Repository
 
 ```bash
-1. git clone https://github.com/your-username/AI-Retention-System.git
+git clone https://github.com/your-username/AI-Retention-System.git
 cd AI-Retention-System
+```
 
-2. Install Dependencies
+### 2. Install Dependencies
+
+```bash
 pip install -r requirements.txt
+```
 
-3. Run App
+### 3. Run Application
+
+```bash
 streamlit run app.py
+```
 
+---
 
-💡 Retention Strategy Logic
+## 📈 Key Insights
 
-🔥 High Risk → Offer discounts + personalized recommendations
+* Low engagement is the strongest indicator of churn
+* High inactivity significantly increases churn risk
+* Users with diverse content consumption show better retention
+* Recommendation systems improve watch time and engagement
+* Segmentation enables targeted retention strategies
 
-⚡ Medium Risk → Send notifications & targeted content
+---
 
-✅ Low Risk → Maintain engagement
+## 🚀 Future Improvements
 
-🔍 Explainable AI (SHAP)
+* Deploy using scalable cloud infrastructure (AWS / GCP)
+* Add real-time user tracking and feedback loops
+* Implement deep learning-based recommendation systems
+* Introduce A/B testing for recommendation strategies
+* Build API backend using FastAPI
 
-The model explains predictions by identifying:
+---
 
-Which features increase churn
-
-Which features reduce churn
-
-This improves transparency and trust in ML decisions.
-
-🚀 Future Improvements
-
-Deploy using cloud (Streamlit Cloud / AWS)
-
-Add user segmentation (clustering)
-
-Improve recommendation with deep learning
-
-Real-time user tracking
-
-👨‍💻 Author
+## 👨‍💻 Author
 
 Ayush Raj
 
-⭐ Support
+---
 
-If you like this project, give it a ⭐ on GitHub!
+## ⭐ Support
+
+If you found this project useful, consider giving it a star on GitHub.
+
+---

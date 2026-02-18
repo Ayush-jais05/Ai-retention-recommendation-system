@@ -34,7 +34,7 @@ st.caption("Model-driven churn, segmentation & recommendation insights")
 st.markdown("---")
 
 # =========================
-# CREATE USER DATA (SMART SIMULATION 🔥)
+# CREATE USER DATA
 # =========================
 np.random.seed(42)
 
@@ -54,7 +54,7 @@ data["engagement_score"] = data["watch_time_per_day"] / (data["last_login_days"]
 data["binge_factor"] = data["watch_time_per_day"] / (data["genres_watched"] + 1)
 
 # =========================
-# APPLY MODEL (REAL 🔥)
+# APPLY MODEL
 # =========================
 X = data[feature_columns]
 X_scaled = scaler.transform(X)
@@ -63,16 +63,14 @@ data["churn_prob"] = churn_model.predict_proba(X_scaled)[:, 1]
 data["churn"] = (data["churn_prob"] > 0.5).astype(int)
 
 # =========================
-# SEGMENTATION (SCALED 🔥)
+# SEGMENTATION
 # =========================
 seg_features = data[["watch_time_per_day", "engagement_score"]]
-
 seg_scaled = StandardScaler().fit_transform(seg_features)
 
 kmeans = KMeans(n_clusters=3, random_state=42, n_init=10)
 data["segment"] = kmeans.fit_predict(seg_scaled)
 
-# dynamic naming
 centroids = kmeans.cluster_centers_
 order = np.argsort(centroids[:, 0])
 
@@ -111,6 +109,13 @@ fig_seg = px.scatter(
 
 st.plotly_chart(fig_seg, use_container_width=True)
 
+st.markdown("### 📌 Insights")
+st.markdown("""
+- Users are segmented into **Low Engagement, Casual Users, and Binge Watchers**  
+- Binge watchers show **highest engagement and retention potential**  
+- Low engagement users are **most likely to churn and require intervention**  
+""")
+
 # =========================
 # RETENTION COHORT
 # =========================
@@ -133,8 +138,15 @@ fig_cohort = px.bar(
 
 st.plotly_chart(fig_cohort, use_container_width=True)
 
+st.markdown("### 📌 Insights")
+st.markdown("""
+- Users inactive for **10+ days show significantly higher churn**  
+- Recently active users have **lowest churn probability**  
+- Re-engagement strategies should target **inactive users quickly**  
+""")
+
 # =========================
-# CHURN INSIGHTS
+# CHURN ANALYSIS
 # =========================
 st.subheader("📉 Churn Analysis")
 
@@ -152,12 +164,18 @@ with col2:
         use_container_width=True
     )
 
+st.markdown("### 📌 Insights")
+st.markdown("""
+- Lower watch time strongly correlates with **higher churn**  
+- Higher skip rate indicates **low content satisfaction → churn risk**  
+- Improving recommendations can **reduce churn significantly**  
+""")
+
 # =========================
-# RECOMMENDER ANALYTICS (REAL DATA 🔥)
+# RECOMMENDER ANALYTICS
 # =========================
 st.subheader("🎬 Recommendation Analytics")
 
-# use real movie dataset instead of random
 top_movies = movies["title"].value_counts().head(10)
 
 fig_rec = px.bar(
@@ -168,6 +186,13 @@ fig_rec = px.bar(
 )
 
 st.plotly_chart(fig_rec, use_container_width=True)
+
+st.markdown("### 📌 Insights")
+st.markdown("""
+- Frequently occurring movies indicate **high engagement content**  
+- These can be used for **trending sections and homepage boosts**  
+- Popular content improves **user session time and retention**  
+""")
 
 # =========================
 # STRATEGY ENGINE
@@ -191,6 +216,13 @@ st.plotly_chart(
     px.bar(strategy_df, x="Strategy", y="Users", template="plotly_dark"),
     use_container_width=True
 )
+
+st.markdown("### 📌 Insights")
+st.markdown("""
+- High-risk users require **discounts and strong personalization**  
+- Binge watchers are ideal for **premium upselling strategies**  
+- Casual users benefit from **targeted notifications and recommendations**  
+""")
 
 # =========================
 # FOOTER

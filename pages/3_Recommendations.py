@@ -173,7 +173,7 @@ show_row("🎭 Drama Movies (Real-Time)", fetch_movies_by_genre("drama"))
 show_row("❤️ Romance Movies (Real-Time)", fetch_movies_by_genre("romance"))
 show_row("👻 Horror Movies (Real-Time)", fetch_movies_by_genre("horror"))
 show_row("😂 Comedy Movies (Real-Time)", fetch_movies_by_genre("comedy"))
-show_row("🚀 Sci-Fi Movies (Real-Time)", fetch_movies_by_genre("science fiction"))
+show_row("🚀 Sci-Fi Movies (Real-Time)", fetch_movies_by_genre("scifi"))
 # =========================
 # FOOTER
 # =========================

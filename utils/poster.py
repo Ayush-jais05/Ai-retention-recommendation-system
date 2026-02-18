@@ -157,8 +157,12 @@ def fetch_trending_movies():
 GENRE_MAP = {
     "action": 28,
     "drama": 18,
-    "romance": 10749
+    "romance": 10749,
+    "horror": 27,
+    "comedy": 35,
+    "scifi": 878   # (Science Fiction)
 }
+
 
 @st.cache_data(show_spinner=False)
 def fetch_movies_by_genre(genre_name):

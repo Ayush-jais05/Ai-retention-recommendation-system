@@ -167,13 +167,14 @@ def show_row(title, movies):
 # =========================
 st.markdown("---")
 
-show_row("🔥 Trending Now (Real-Time)", fetch_trending_movies())
-show_row("💥 Action Movies (Real-Time)", fetch_movies_by_genre("action"))
-show_row("🎭 Drama Movies (Real-Time)", fetch_movies_by_genre("drama"))
-show_row("❤️ Romance Movies (Real-Time)", fetch_movies_by_genre("romance"))
-show_row("👻 Horror Movies (Real-Time)", fetch_movies_by_genre("horror"))
-show_row("😂 Comedy Movies (Real-Time)", fetch_movies_by_genre("comedy"))
-show_row("🚀 Sci-Fi Movies (Real-Time)", fetch_movies_by_genre("scifi"))
+show_row("🔥 Trending Now ", fetch_trending_movies())
+show_row("💥 Action Movies", fetch_movies_by_genre("action"))
+show_row("🎭 Drama Movies", fetch_movies_by_genre("drama"))
+show_row("❤️ Romance Movies", fetch_movies_by_genre("romance"))
+show_row("👻 Horror Movies", fetch_movies_by_genre("horror"))
+show_row("😂 Comedy Movies", fetch_movies_by_genre("comedy"))
+show_row("🚀 Sci-Fi Movies", fetch_movies_by_genre("scifi"))
+
 # =========================
 # FOOTER
 # =========================

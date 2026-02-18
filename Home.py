@@ -9,65 +9,68 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded"
 )
-
 # =========================
-# NETFLIX STYLE UI 🔥
+# PREMIUM CALM UI 🌙
 # =========================
 st.markdown("""
 <style>
 
-/* Background (Netflix Red-Black Gradient) */
+/* Background (soft dark gradient) */
 .main {
-    background: linear-gradient(135deg, #000000, #0b0b0b, #1a0000);
-    color: white;
+    background: linear-gradient(135deg, #020617, #0f172a, #020617);
+    color: #e5e7eb;
 }
 
 /* Hero Title */
 .hero-title {
-    font-size: 64px;
-    font-weight: 800;
-    letter-spacing: -1px;
-    color: #e50914;
-    text-shadow: 0 0 20px rgba(229, 9, 20, 0.4);
+    font-size: 60px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    color: #38bdf8;  /* soft cyan */
 }
 
 /* Subtitle */
 .subtext {
-    color: #b3b3b3;
-    font-size: 18px;
+    color: #94a3b8;
+    font-size: 17px;
 }
 
 /* Cards */
 .card {
     background: rgba(255,255,255,0.04);
     padding: 28px;
-    border-radius: 20px;
-    backdrop-filter: blur(14px);
-    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 18px;
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.06);
     transition: all 0.3s ease;
 }
 
 .card:hover {
-    transform: translateY(-6px);
-    box-shadow: 0 0 25px rgba(229, 9, 20, 0.3);
-    border: 1px solid rgba(229, 9, 20, 0.4);
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(56,189,248,0.15);
+    border: 1px solid rgba(56,189,248,0.3);
 }
 
 /* Buttons */
 .stButton>button {
     width: 100%;
-    border-radius: 12px;
-    background: linear-gradient(90deg, #e50914, #b20710);
+    border-radius: 10px;
+    background: linear-gradient(90deg, #0ea5e9, #22c55e);
     color: white;
     font-size: 15px;
     padding: 12px;
     border: none;
-    transition: all 0.3s ease;
+    transition: all 0.25s ease;
 }
 
 .stButton>button:hover {
-    transform: scale(1.03);
-    box-shadow: 0 0 15px rgba(229, 9, 20, 0.6);
+    transform: scale(1.02);
+    box-shadow: 0 0 10px rgba(56,189,248,0.4);
+}
+
+/* Divider */
+hr {
+    border: 0.5px solid rgba(255,255,255,0.08);
 }
 
 /* Section spacing */
@@ -75,13 +78,9 @@ st.markdown("""
     margin-top: 30px;
 }
 
-/* Divider */
-hr {
-    border: 0.5px solid rgba(255,255,255,0.1);
-}
-
 </style>
 """, unsafe_allow_html=True)
+
 
 # =========================
 # HERO SECTION 🔥

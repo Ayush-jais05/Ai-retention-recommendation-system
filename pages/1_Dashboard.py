@@ -3,7 +3,6 @@
 # =========================
 import streamlit as st
 
-# must be first streamlit command
 st.set_page_config(
     page_title="Churn Intelligence Dashboard",
     page_icon="📉",
@@ -15,12 +14,11 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 
-# churn model
 from churn.churn_logic import predict_churn
 
 
 # =========================
-# CUSTOM UI
+# PREMIUM UI 🔥
 # =========================
 st.markdown("""
 <style>
@@ -30,17 +28,16 @@ st.markdown("""
 }
 
 .card {
-    background: rgba(255,255,255,0.08);
+    background: rgba(255,255,255,0.06);
     padding: 20px;
-    border-radius: 16px;
+    border-radius: 18px;
     margin-bottom: 20px;
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255,255,255,0.1);
+    backdrop-filter: blur(14px);
+    border: 1px solid rgba(255,255,255,0.08);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.3);
 }
 
-.center {
-    text-align: center;
-}
+.center { text-align: center; }
 
 .stButton>button {
     width: 100%;
@@ -48,7 +45,12 @@ st.markdown("""
     background: linear-gradient(90deg, #6366f1, #06b6d4);
     color: white;
     font-size: 18px;
-    padding: 10px;
+    padding: 12px;
+}
+
+.metric-card {
+    text-align:center;
+    font-size:18px;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -58,10 +60,10 @@ st.markdown("""
 # HERO SECTION
 # =========================
 st.markdown("""
-<div style='text-align:center; padding:30px'>
-    <h1 style='font-size:42px;'>📉 Churn Intelligence Dashboard</h1>
+<div class='center' style='padding:30px'>
+    <h1 style='font-size:44px;'>📉 Churn Intelligence Dashboard</h1>
     <p style='font-size:18px; color:#94a3b8;'>
-        Predict user churn and understand behavior patterns 🚀
+        Predict churn, understand behavior & boost retention 🚀
     </p>
 </div>
 """, unsafe_allow_html=True)
@@ -75,10 +77,10 @@ st.markdown("---")
 st.sidebar.markdown("## 🎛️ User Behavior Inputs")
 st.sidebar.markdown("---")
 
-watch_time = st.sidebar.slider("Watch Time (mins/day)", 10, 300, 120)
-last_login = st.sidebar.slider("Days Since Last Login", 1, 30, 5)
-genres = st.sidebar.slider("Genres Watched", 1, 10, 3)
-skip_rate = st.sidebar.slider("Skip Rate", 0.0, 1.0, 0.3)
+watch_time = st.sidebar.slider("🎬 Watch Time (mins/day)", 10, 300, 120)
+last_login = st.sidebar.slider("📅 Days Since Last Login", 1, 30, 5)
+genres = st.sidebar.slider("🎭 Genres Watched", 1, 10, 3)
+skip_rate = st.sidebar.slider("⏭️ Skip Rate", 0.0, 1.0, 0.3)
 
 
 # =========================
@@ -98,6 +100,18 @@ input_data = pd.DataFrame([{
 
 
 # =========================
+# LIVE INSIGHTS (NEW 🔥)
+# =========================
+st.markdown("## ⚡ Quick Insights")
+
+col1, col2, col3 = st.columns(3)
+
+col1.metric("🔥 Engagement Score", f"{engagement_score:.2f}")
+col2.metric("📺 Binge Factor", f"{binge_factor:.2f}")
+col3.metric("⚠️ Risk Signal", "High" if skip_rate > 0.5 else "Normal")
+
+
+# =========================
 # MAIN BUTTON
 # =========================
 if st.button("🚀 Analyze User"):
@@ -109,19 +123,18 @@ if st.button("🚀 Analyze User"):
             prob = float(prob)
 
             # =========================
-            # CHURN RESULTS
+            # RESULT HEADER
             # =========================
             st.markdown("## 📉 Churn Analysis")
 
             col1, col2 = st.columns(2)
 
-            # metric
             with col1:
                 st.markdown('<div class="card">', unsafe_allow_html=True)
                 st.metric("Churn Probability", f"{prob:.2%}")
+                st.progress(prob)
                 st.markdown('</div>', unsafe_allow_html=True)
 
-            # risk label
             with col2:
                 st.markdown('<div class="card">', unsafe_allow_html=True)
 
@@ -135,7 +148,7 @@ if st.button("🚀 Analyze User"):
                 st.markdown('</div>', unsafe_allow_html=True)
 
             # =========================
-            # GAUGE CHART
+            # GAUGE CHART 🔥
             # =========================
             fig = go.Figure(go.Indicator(
                 mode="gauge+number",
@@ -143,10 +156,11 @@ if st.button("🚀 Analyze User"):
                 title={'text': "Churn Risk"},
                 gauge={
                     'axis': {'range': [0, 100]},
+                    'bar': {'color': "#6366f1"},
                     'steps': [
-                        {'range': [0, 40], 'color': "green"},
-                        {'range': [40, 70], 'color': "yellow"},
-                        {'range': [70, 100], 'color': "red"}
+                        {'range': [0, 40], 'color': "#22c55e"},
+                        {'range': [40, 70], 'color': "#facc15"},
+                        {'range': [70, 100], 'color': "#ef4444"}
                     ]
                 }
             ))
@@ -155,7 +169,7 @@ if st.button("🚀 Analyze User"):
 
 
             # =========================
-            # EXPLANATION
+            # REASONS
             # =========================
             st.markdown("## 🧠 Why this prediction?")
 
@@ -166,7 +180,7 @@ if st.button("🚀 Analyze User"):
 
 
             # =========================
-            # USER BEHAVIOR VISUALIZATION
+            # USER BEHAVIOR CHART
             # =========================
             st.markdown("## 📊 User Behavior Insights")
 
@@ -187,7 +201,7 @@ if st.button("🚀 Analyze User"):
 
 
             # =========================
-            # RETENTION STRATEGY
+            # RETENTION STRATEGY 🔥
             # =========================
             st.markdown("## 💡 Retention Strategy")
 
@@ -195,11 +209,16 @@ if st.button("🚀 Analyze User"):
 
             if risk == "High":
                 st.toast("🔥 High churn risk detected!", icon="⚠️")
-                st.error("Offer discounts + push personalized engagement campaigns")
+                st.error("Offer discounts + aggressive re-engagement campaigns")
+                st.markdown("👉 Send push notifications\n👉 Offer premium trial\n👉 Recommend trending content")
+
             elif risk == "Medium":
-                st.warning("Send targeted notifications & improve recommendations")
+                st.warning("User needs engagement boost")
+                st.markdown("👉 Improve recommendations\n👉 Send reminders\n👉 Highlight new releases")
+
             else:
-                st.success("User is engaged — maintain experience")
+                st.success("User is healthy 🎉")
+                st.markdown("👉 Maintain experience\n👉 Introduce personalization")
 
             st.markdown('</div>', unsafe_allow_html=True)
 

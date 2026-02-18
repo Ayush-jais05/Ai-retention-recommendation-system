@@ -1,7 +1,7 @@
 import streamlit as st
 import joblib
 
-# recommender logic (KNN 🔥)
+# recommender logic
 from recommender.recommender import recommend_movies
 
 # poster + trailer + categories
@@ -29,7 +29,7 @@ st.markdown("Explore movies like Netflix with AI recommendations 🚀")
 st.markdown("---")
 
 # =========================
-# LOAD MOVIE LIST (FAST 🚀)
+# LOAD MOVIES (CACHE 🔥)
 # =========================
 @st.cache_data
 def load_movies():
@@ -38,10 +38,14 @@ def load_movies():
     return movies
 
 movies_df = load_movies()
+
+# 🔥 LIMIT BASE LIST TO 3000 (IMPORTANT)
+movies_df = movies_df.head(3000)
+
 movie_list = movies_df["title"].tolist()
 
 # =========================
-# SEARCH + SELECT 🔍
+# SEARCH SYSTEM 🔍
 # =========================
 st.markdown("### 🔍 Search Movie")
 
@@ -50,21 +54,30 @@ search_query = st.text_input("Type movie name...")
 def normalize(text):
     return text.lower().strip()
 
-# 🔥 FAST FILTER (max 50)
+# 🔥 SMART FILTERING
 if search_query:
     filtered_df = movies_df[
         movies_df["clean"].str.contains(normalize(search_query), regex=False)
-    ].head(50)
+    ]
+
+    # 🔥 LIMIT DISPLAY (UI SAFE)
+    filtered_df = filtered_df.head(200)
+
 else:
-    filtered_df = movies_df.head(50)
+    # 🔥 SHOW POPULAR / FIRST 200
+    filtered_df = movies_df.head(200)
 
 filtered_movies = filtered_df["title"].tolist()
 
-# result count
+# show count (REAL COUNT, not limited one)
 if search_query:
-    st.caption(f"{len(filtered_movies)} results found")
+    total_matches = movies_df[
+        movies_df["clean"].str.contains(normalize(search_query), regex=False)
+    ].shape[0]
 
-# handle empty
+    st.caption(f"{total_matches} results found (showing top {len(filtered_movies)})")
+
+# dropdown
 if filtered_movies:
     selected_movie = st.selectbox("🎬 Select Movie", filtered_movies)
 else:
@@ -72,7 +85,7 @@ else:
     selected_movie = None
 
 # =========================
-# RECOMMEND BUTTON
+# RECOMMENDATION BUTTON
 # =========================
 if st.button("🎯 Get Recommendations"):
 
@@ -87,7 +100,7 @@ if st.button("🎯 Get Recommendations"):
 
                 st.markdown("## 🎬 Recommended Movies")
 
-                # 🔥 GRID UI (2 rows)
+                # 🔥 GRID (2 rows)
                 for row in range(2):
                     cols = st.columns(5)
 
@@ -106,7 +119,6 @@ if st.button("🎯 Get Recommendations"):
 
                             st.caption(movie)
 
-                            # 🎥 FIXED TRAILER BUTTON
                             trailer = fetch_trailer(movie)
                             if trailer:
                                 st.link_button("▶ Trailer", trailer)
@@ -114,9 +126,8 @@ if st.button("🎯 Get Recommendations"):
             except Exception as e:
                 st.error(f"❌ Error: {str(e)}")
 
-
 # =========================
-# NETFLIX STYLE ROWS 🔥
+# NETFLIX STYLE ROWS
 # =========================
 def show_row(title, movies):
     st.markdown(f"## {title}")
@@ -134,7 +145,6 @@ def show_row(title, movies):
             trailer = fetch_trailer(movie)
             if trailer:
                 st.link_button("▶", trailer)
-
 
 # =========================
 # REAL-TIME SECTIONS

@@ -55,7 +55,7 @@ st.markdown("""
 .stButton>button {
     width: 100%;
     border-radius: 10px;
-    background: linear-gradient(90deg, #0ea5e9, #22c55e);
+    background: #2563eb; /* clean blue */
     color: white;
     font-size: 15px;
     padding: 12px;
@@ -65,8 +65,10 @@ st.markdown("""
 
 .stButton>button:hover {
     transform: scale(1.02);
-    box-shadow: 0 0 10px rgba(56,189,248,0.4);
+    background: #1d4ed8;
+    box-shadow: 0 0 10px rgba(37,99,235,0.4);
 }
+
 
 /* Divider */
 hr {
